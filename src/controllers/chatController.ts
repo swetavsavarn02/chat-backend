@@ -120,6 +120,64 @@ class ChatController {
       res.status(500).json({ success: false, error: 'Failed to update last seen' });
     }
   }
+
+  // PUT /chat/:chatId/message/:messageId/edit
+  async editMessage(req: Request, res: Response): Promise<void> {
+    try {
+      const { chatId, messageId } = req.params;
+      const { userId, text } = req.body;
+
+      // Verify user is part of chat
+      const isParticipant = await chatService.isUserInChat(chatId, userId);
+      if (!isParticipant) {
+        res.status(403).json({ success: false, error: 'User is not part of this chat' });
+        return;
+      }
+
+      const message = await messageService.editMessage(chatId, messageId, userId, text);
+      res.status(200).json({ success: true, data: message });
+    } catch (err: any) {
+      console.error('Error editing message:', err);
+      if (err.message === 'Message not found') {
+        res.status(404).json({ success: false, error: 'Message not found' });
+        return;
+      }
+      if (err.message === 'Not authorized to edit this message') {
+        res.status(403).json({ success: false, error: err.message });
+        return;
+      }
+      res.status(500).json({ success: false, error: 'Failed to edit message' });
+    }
+  }
+
+  // DELETE /chat/:chatId/message/:messageId
+  async deleteMessage(req: Request, res: Response): Promise<void> {
+    try {
+      const { chatId, messageId } = req.params;
+      const { userId } = req.body;
+
+      // Verify user is part of chat
+      const isParticipant = await chatService.isUserInChat(chatId, userId);
+      if (!isParticipant) {
+        res.status(403).json({ success: false, error: 'User is not part of this chat' });
+        return;
+      }
+
+      await messageService.deleteMessage(chatId, messageId, userId);
+      res.status(200).json({ success: true, data: { deleted: true } });
+    } catch (err: any) {
+      console.error('Error deleting message:', err);
+      if (err.message === 'Message not found') {
+        res.status(404).json({ success: false, error: 'Message not found' });
+        return;
+      }
+      if (err.message === 'Not authorized to delete this message') {
+        res.status(403).json({ success: false, error: err.message });
+        return;
+      }
+      res.status(500).json({ success: false, error: 'Failed to delete message' });
+    }
+  }
 }
 
 export default new ChatController();

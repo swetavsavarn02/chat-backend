@@ -64,3 +64,50 @@ export const messageIdParamSchema = Joi.object({
 export const userIdParamSchema = Joi.object({
   userId: Joi.string().uuid().required()
 });
+
+// Group chat validators
+export const createGroupSchema = Joi.object({
+  name: Joi.string().min(1).max(100).required().messages({
+    'string.min': 'Group name cannot be empty',
+    'string.max': 'Group name too long (max 100 chars)',
+    'any.required': 'name is required'
+  }),
+  createdBy: Joi.string().uuid().required().messages({
+    'string.guid': 'createdBy must be a valid UUID',
+    'any.required': 'createdBy is required'
+  }),
+  members: Joi.array().items(Joi.string().uuid()).min(1).required().messages({
+    'array.min': 'At least one member is required',
+    'any.required': 'members is required'
+  })
+});
+
+export const addMemberSchema = Joi.object({
+  userId: Joi.string().uuid().required(),
+  memberId: Joi.string().uuid().required().messages({
+    'string.guid': 'memberId must be a valid UUID',
+    'any.required': 'memberId is required'
+  })
+});
+
+export const removeMemberSchema = Joi.object({
+  userId: Joi.string().uuid().required(),
+  memberId: Joi.string().uuid().required()
+});
+
+export const groupIdParamSchema = Joi.object({
+  groupId: Joi.string().uuid().required()
+});
+
+// Message edit/delete validators
+export const editMessageSchema = Joi.object({
+  userId: Joi.string().uuid().required(),
+  text: Joi.string().min(1).max(5000).required().messages({
+    'string.min': 'Message cannot be empty',
+    'string.max': 'Message too long (max 5000 chars)'
+  })
+});
+
+export const deleteMessageSchema = Joi.object({
+  userId: Joi.string().uuid().required()
+});

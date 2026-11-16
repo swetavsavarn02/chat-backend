@@ -132,6 +132,64 @@ class MessageService {
       readBy: data?.readBy || []
     };
   }
+
+  async editMessage(chatId: string, messageId: string, userId: string, newText: string): Promise<Message> {
+    const messageRef = db
+      .collection(this.messagesCol)
+      .doc(chatId)
+      .collection('items')
+      .doc(messageId);
+
+    const doc = await messageRef.get();
+    if (!doc.exists) {
+      throw new Error('Message not found');
+    }
+
+    const data = doc.data();
+
+    // Only sender can edit their message
+    if (data?.senderId !== userId) {
+      throw new Error('Not authorized to edit this message');
+    }
+
+    const updatedAt = new Date();
+    await messageRef.update({
+      text: newText,
+      editedAt: updatedAt,
+      isEdited: true
+    });
+
+    return {
+      id: data.id,
+      chatId: data.chatId,
+      senderId: data.senderId,
+      text: newText,
+      timestamp: data.timestamp.toDate(),
+      readBy: data.readBy || []
+    };
+  }
+
+  async deleteMessage(chatId: string, messageId: string, userId: string): Promise<void> {
+    const messageRef = db
+      .collection(this.messagesCol)
+      .doc(chatId)
+      .collection('items')
+      .doc(messageId);
+
+    const doc = await messageRef.get();
+    if (!doc.exists) {
+      throw new Error('Message not found');
+    }
+
+    const data = doc.data();
+
+    // Only sender can delete their message
+    if (data?.senderId !== userId) {
+      throw new Error('Not authorized to delete this message');
+    }
+
+    await messageRef.delete();
+  }
 }
 
 export default new MessageService();

@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { sequelize } from './models';
 import chatRoutes from './routes/chatRoutes';
 import userRoutes from './routes/userRoutes';
+import groupRoutes from './routes/groupRoutes';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/chat', chatRoutes);
 app.use('/user', userRoutes);
+app.use('/group', groupRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

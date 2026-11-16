@@ -8,7 +8,9 @@ import {
     lastSeenSchema,
     getMessagesSchema,
     chatIdParamSchema,
-    messageIdParamSchema
+    messageIdParamSchema,
+    editMessageSchema,
+    deleteMessageSchema
 } from '../validators/chatValidators';
 
 const router = Router();
@@ -50,6 +52,22 @@ router.post(
     validate(chatIdParamSchema, 'params'),
     validate(lastSeenSchema, 'body'),
     (req, res) => chatController.updateLastSeen(req, res)
+);
+
+// Edit message
+router.put(
+    '/:chatId/message/:messageId/edit',
+    validate(messageIdParamSchema, 'params'),
+    validate(editMessageSchema, 'body'),
+    (req, res) => chatController.editMessage(req, res)
+);
+
+// Delete message
+router.delete(
+    '/:chatId/message/:messageId',
+    validate(messageIdParamSchema, 'params'),
+    validate(deleteMessageSchema, 'body'),
+    (req, res) => chatController.deleteMessage(req, res)
 );
 
 export default router;
