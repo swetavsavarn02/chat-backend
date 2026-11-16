@@ -52,7 +52,7 @@ class ChatController {
   async getMessages(req: Request, res: Response): Promise<void> {
     try {
       const { chatId } = req.params;
-      const limit = req.query.limit as number || 50;
+      const limit = parseInt(req.query.limit as string) || 50;
 
       const chat = await chatService.getChatById(chatId);
       if (!chat) {

@@ -42,8 +42,8 @@ class MessageService {
       .get();
 
     const messages: Message[] = [];
-    
-    snapshot.forEach((doc) => {
+
+    for (const doc of snapshot.docs) {
       const data = doc.data();
       messages.push({
         id: data.id,
@@ -53,7 +53,7 @@ class MessageService {
         timestamp: data.timestamp.toDate(),
         readBy: data.readBy || []
       });
-    });
+    }
 
     // Return oldest first
     return messages.reverse();
@@ -82,7 +82,7 @@ class MessageService {
 
   async updateLastSeen(chatId: string, userId: string, messageId: string): Promise<void> {
     const docId = `${chatId}_${userId}`;
-    
+
     const lastSeen: LastSeen = {
       userId,
       chatId,
